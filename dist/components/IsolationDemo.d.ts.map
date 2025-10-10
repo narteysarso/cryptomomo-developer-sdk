@@ -1,0 +1,1 @@
+{"version":3,"file":"IsolationDemo.d.ts","sourceRoot":"","sources":["../../src/components/IsolationDemo.tsx"],"names":[],"mappings":"AAAA,OAAO,KAAK,MAAM,OAAO,CAAC;AAG1B,OAAO,EAAE,eAAe,EAAE,MAAM,UAAU,CAAC;AAE3C,UAAU,kBAAkB;IAC1B,KAAK,CAAC,EAAE,eAAe,CAAC;CACzB;AAED;;;GAGG;AACH,eAAO,MAAM,aAAa,EAAE,KAAK,CAAC,EAAE,CAAC,kBAAkB,CAkHtD,CAAC"}

@@ -1,0 +1,713 @@
+openapi: 3.0.3
+info:
+  title: CryptoMomo Developer SDK
+  description: |
+    CryptoMomo Developer SDK - Build web3 applications with Account Abstraction and gasless transactions
+    
+    This SDK provides React components, hooks, and utilities for integrating CryptoMomo's web3 infrastructure
+    into your applications. It supports phone number-based wallet connections, gasless transactions,
+    and comprehensive theming capabilities.
+    
+    ## Features
+    - 📱 Phone number-based wallet connection
+    - ⛽ Gasless transactions with Account Abstraction
+    - 🎨 Comprehensive theming system
+    - 🔧 TypeScript support
+    - 📦 Tree-shakable components
+    - ♿ Accessibility-first design
+    - 🌙 Dark mode support
+    - 📱 Mobile-responsive components
+    
+    ## Installation
+    ```bash
+    npm install cryptomomo-developer-sdk
+    ```
+    
+    ## Quick Start
+    ```tsx
+    import { CryptoMomoProvider, ConnectButton } from 'cryptomomo-developer-sdk';
+    
+    function App() {
+      return (
+        <CryptoMomoProvider apiKey="your-api-key">
+          <ConnectButton />
+        </CryptoMomoProvider>
+      );
+    }
+    ```
+  version: 2.2.7
+  contact:
+    name: CryptoMomo Support
+    url: https://cryptomomo.africa
+    email: support@cryptomomo.africa
+  license:
+    name: MIT
+    url: https://github.com/narteysarso/cryptomomo-developer-sdk/blob/main/LICENSE
+  termsOfService: https://cryptomomo.africa/terms
+
+servers:
+  - url: https://api.cryptomomo.africa/v1
+    description: Production API Server
+  - url: https://staging-api.cryptomomo.africa/v1
+    description: Staging API Server
+
+tags:
+  - name: Components
+    description: React components for UI integration
+  - name: Hooks
+    description: React hooks for state management and API interactions
+  - name: Providers
+    description: Context providers for global state management
+  - name: Types
+    description: TypeScript type definitions
+  - name: Utilities
+    description: Utility functions and helpers
+  - name: Theming
+    description: Theme system and customization
+
+paths:
+  /sdk/components/ConnectButton:
+    get:
+      tags:
+        - Components
+      summary: ConnectButton Component
+      description: |
+        Primary component for wallet connection with phone number authentication.
+        Supports both modal and inline modes with comprehensive theming.
+      responses:
+        '200':
+          description: Component specification
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  component: 
+                    type: string
+                    example: "ConnectButton"
+                  props:
+                    $ref: '#/components/schemas/ConnectButtonProps'
+                  usage:
+                    type: string
+                    example: |
+                      <ConnectButton
+                        onConnect={(response) => console.log('Connected:', response)}
+                        onError={(error) => console.error('Error:', error)}
+                        variant="default"
+                        size="default"
+                        modal={true}
+                        theme={customTheme}
+                      />
+
+  /sdk/components/TransactionButton:
+    get:
+      tags:
+        - Components
+      summary: TransactionButton Component
+      description: |
+        Component for executing gasless transactions with built-in loading states,
+        error handling, and success feedback.
+      responses:
+        '200':
+          description: Component specification
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  component:
+                    type: string
+                    example: "TransactionButton"
+                  props:
+                    $ref: '#/components/schemas/TransactionButtonProps'
+                  usage:
+                    type: string
+                    example: |
+                      <TransactionButton
+                        to="0x742d35Cc6634C0532925a3b8D16A2f5C3e2f1234"
+                        amount="0.1"
+                        onSuccess={(tx) => console.log('Transaction:', tx)}
+                        onError={(error) => console.error('Error:', error)}
+                        gasless={true}
+                      />
+
+  /sdk/hooks/useConnect:
+    get:
+      tags:
+        - Hooks
+      summary: useConnect Hook
+      description: |
+        Hook for managing wallet connection state and phone number authentication flow.
+        Handles OTP verification and connection state management.
+      responses:
+        '200':
+          description: Hook specification
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hook:
+                    type: string
+                    example: "useConnect"
+                  returns:
+                    $ref: '#/components/schemas/UseConnectReturn'
+                  usage:
+                    type: string
+                    example: |
+                      const {
+                        connect,
+                        verifyOTP,
+                        reset,
+                        isConnecting,
+                        isVerifying,
+                        connectError,
+                        verifyError
+                      } = useConnect({
+                        onSuccess: (response) => console.log('Connected:', response),
+                        onError: (error) => console.error('Error:', error)
+                      });
+
+  /sdk/hooks/useTransaction:
+    get:
+      tags:
+        - Hooks
+      summary: useTransaction Hook
+      description: |
+        Hook for executing transactions with gasless support, batch operations,
+        and comprehensive error handling.
+      responses:
+        '200':
+          description: Hook specification
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hook:
+                    type: string
+                    example: "useTransaction"
+                  returns:
+                    $ref: '#/components/schemas/UseTransactionReturn'
+                  usage:
+                    type: string
+                    example: |
+                      const {
+                        sendTransaction,
+                        batchTransactions,
+                        isLoading,
+                        error,
+                        lastTransaction
+                      } = useTransaction({
+                        onSuccess: (tx) => console.log('Transaction:', tx),
+                        onError: (error) => console.error('Error:', error)
+                      });
+
+  /sdk/providers/CryptoMomoProvider:
+    get:
+      tags:
+        - Providers
+      summary: CryptoMomoProvider
+      description: |
+        Main context provider that wraps your application and provides
+        global state management for the CryptoMomo SDK.
+      responses:
+        '200':
+          description: Provider specification
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  provider:
+                    type: string
+                    example: "CryptoMomoProvider"
+                  props:
+                    $ref: '#/components/schemas/CryptoMomoProviderProps'
+                  usage:
+                    type: string
+                    example: |
+                      <CryptoMomoProvider
+                        apiKey="your-api-key"
+                        environment="production"
+                        theme={customTheme}
+                      >
+                        <YourApp />
+                      </CryptoMomoProvider>
+
+  /sdk/providers/ThemeProvider:
+    get:
+      tags:
+        - Providers
+      summary: ThemeProvider
+      description: |
+        Theme context provider for customizing the appearance of SDK components.
+        Supports light/dark modes and comprehensive color customization.
+      responses:
+        '200':
+          description: Provider specification
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  provider:
+                    type: string
+                    example: "ThemeProvider"
+                  props:
+                    $ref: '#/components/schemas/ThemeProviderProps'
+                  usage:
+                    type: string
+                    example: |
+                      <ThemeProvider theme={customTheme}>
+                        <ConnectButton />
+                      </ThemeProvider>
+
+components:
+  schemas:
+    ConnectButtonProps:
+      type: object
+      properties:
+        onConnect:
+          type: string
+          description: Callback function called when connection is successful
+          example: "(response: ConnectResponse) => void"
+        onError:
+          type: string
+          description: Callback function called when an error occurs
+          example: "(error: Error) => void"
+        className:
+          type: string
+          description: Additional CSS classes for styling
+          example: "custom-connect-button"
+        children:
+          type: string
+          description: Custom button content
+          example: "Connect Wallet"
+        disabled:
+          type: boolean
+          description: Whether the button is disabled
+          default: false
+        theme:
+          $ref: '#/components/schemas/CryptoMomoTheme'
+        variant:
+          type: string
+          enum: [default, destructive, outline, secondary, ghost, link]
+          description: Button variant style
+          default: "default"
+        size:
+          type: string
+          enum: [default, sm, lg, icon]
+          description: Button size
+          default: "default"
+        showLogo:
+          type: boolean
+          description: Whether to show the CryptoMomo logo
+          default: true
+        modal:
+          type: boolean
+          description: Whether to use modal mode (true) or inline mode (false)
+          default: true
+
+    TransactionButtonProps:
+      type: object
+      properties:
+        to:
+          type: string
+          description: Recipient address for the transaction
+          example: "0x742d35Cc6634C0532925a3b8D16A2f5C3e2f1234"
+        amount:
+          type: string
+          description: Amount to send (in ETH)
+          example: "0.1"
+        tokenAddress:
+          type: string
+          description: Token contract address (optional, defaults to ETH)
+          example: "0xA0b86a33E6441b3A6b42e3F1F1a6eF1F1e1F1e1F"
+        gasless:
+          type: boolean
+          description: Whether to use gasless transactions
+          default: true
+        onSuccess:
+          type: string
+          description: Callback function called when transaction succeeds
+          example: "(transaction: TransactionResponse) => void"
+        onError:
+          type: string
+          description: Callback function called when transaction fails
+          example: "(error: Error) => void"
+        className:
+          type: string
+          description: Additional CSS classes for styling
+        children:
+          type: string
+          description: Custom button content
+        disabled:
+          type: boolean
+          description: Whether the button is disabled
+          default: false
+        variant:
+          type: string
+          enum: [default, destructive, outline, secondary, ghost, link]
+          description: Button variant style
+          default: "default"
+        size:
+          type: string
+          enum: [default, sm, lg, icon]
+          description: Button size
+          default: "default"
+
+    CryptoMomoProviderProps:
+      type: object
+      required:
+        - apiKey
+      properties:
+        apiKey:
+          type: string
+          description: Your CryptoMomo API key
+          example: "cm_test_1234567890abcdef"
+        environment:
+          type: string
+          enum: [production, staging, development]
+          description: Environment to use
+          default: "production"
+        theme:
+          $ref: '#/components/schemas/CryptoMomoTheme'
+        children:
+          type: string
+          description: React children components
+          example: "React.ReactNode"
+
+    ThemeProviderProps:
+      type: object
+      properties:
+        theme:
+          $ref: '#/components/schemas/CryptoMomoTheme'
+        children:
+          type: string
+          description: React children components
+          example: "React.ReactNode"
+
+    CryptoMomoTheme:
+      type: object
+      properties:
+        colors:
+          type: object
+          properties:
+            primary:
+              type: string
+              description: Primary color
+              example: "#007bff"
+            secondary:
+              type: string
+              description: Secondary color
+              example: "#6c757d"
+            success:
+              type: string
+              description: Success color
+              example: "#28a745"
+            danger:
+              type: string
+              description: Danger/error color
+              example: "#dc3545"
+            warning:
+              type: string
+              description: Warning color
+              example: "#ffc107"
+            info:
+              type: string
+              description: Info color
+              example: "#17a2b8"
+            light:
+              type: string
+              description: Light color
+              example: "#f8f9fa"
+            dark:
+              type: string
+              description: Dark color
+              example: "#343a40"
+            background:
+              type: string
+              description: Background color
+              example: "#ffffff"
+            foreground:
+              type: string
+              description: Foreground color
+              example: "#000000"
+        borderRadius:
+          type: string
+          description: Border radius for components
+          example: "8px"
+        fontFamily:
+          type: string
+          description: Font family for text
+          example: "Inter, system-ui, sans-serif"
+        spacing:
+          type: object
+          properties:
+            xs:
+              type: string
+              example: "4px"
+            sm:
+              type: string
+              example: "8px"
+            md:
+              type: string
+              example: "16px"
+            lg:
+              type: string
+              example: "24px"
+            xl:
+              type: string
+              example: "32px"
+
+    UseConnectReturn:
+      type: object
+      properties:
+        connect:
+          type: string
+          description: Function to initiate connection with phone number
+          example: "(phoneNumber: string) => Promise<void>"
+        verifyOTP:
+          type: string
+          description: Function to verify OTP code
+          example: "(otp: string) => Promise<void>"
+        reset:
+          type: string
+          description: Function to reset connection state
+          example: "() => void"
+        isConnecting:
+          type: boolean
+          description: Whether connection is in progress
+        isVerifying:
+          type: boolean
+          description: Whether OTP verification is in progress
+        connectError:
+          type: string
+          description: Error from connection attempt
+          nullable: true
+        verifyError:
+          type: string
+          description: Error from OTP verification
+          nullable: true
+
+    UseTransactionReturn:
+      type: object
+      properties:
+        sendTransaction:
+          type: string
+          description: Function to send a single transaction
+          example: "(params: TransactionParams) => Promise<TransactionResponse>"
+        batchTransactions:
+          type: string
+          description: Function to send multiple transactions in batch
+          example: "(transactions: TransactionParams[]) => Promise<TransactionResponse[]>"
+        isLoading:
+          type: boolean
+          description: Whether transaction is in progress
+        error:
+          type: string
+          description: Error from transaction attempt
+          nullable: true
+        lastTransaction:
+          type: string
+          description: Last successful transaction
+          nullable: true
+
+    ConnectResponse:
+      type: object
+      properties:
+        address:
+          type: string
+          description: Connected wallet address
+          example: "0x742d35Cc6634C0532925a3b8D16A2f5C3e2f1234"
+        phoneNumber:
+          type: string
+          description: Connected phone number
+          example: "+233123456789"
+        isConnected:
+          type: boolean
+          description: Connection status
+          example: true
+        sessionId:
+          type: string
+          description: Session identifier
+          example: "session_1234567890"
+
+    TransactionParams:
+      type: object
+      required:
+        - to
+        - amount
+      properties:
+        to:
+          type: string
+          description: Recipient address
+          example: "0x742d35Cc6634C0532925a3b8D16A2f5C3e2f1234"
+        amount:
+          type: string
+          description: Amount to send
+          example: "0.1"
+        tokenAddress:
+          type: string
+          description: Token contract address (optional)
+          example: "0xA0b86a33E6441b3A6b42e3F1F1a6eF1F1e1F1e1F"
+        gasless:
+          type: boolean
+          description: Whether to use gasless transaction
+          default: true
+        data:
+          type: string
+          description: Additional transaction data
+          example: "0x"
+
+    TransactionResponse:
+      type: object
+      properties:
+        hash:
+          type: string
+          description: Transaction hash
+          example: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+        from:
+          type: string
+          description: Sender address
+          example: "0x742d35Cc6634C0532925a3b8D16A2f5C3e2f1234"
+        to:
+          type: string
+          description: Recipient address
+          example: "0x742d35Cc6634C0532925a3b8D16A2f5C3e2f1234"
+        value:
+          type: string
+          description: Transaction value
+          example: "100000000000000000"
+        gasUsed:
+          type: string
+          description: Gas used
+          example: "21000"
+        gasPrice:
+          type: string
+          description: Gas price
+          example: "20000000000"
+        blockNumber:
+          type: number
+          description: Block number
+          example: 12345678
+        blockHash:
+          type: string
+          description: Block hash
+          example: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+        timestamp:
+          type: number
+          description: Transaction timestamp
+          example: 1640995200
+        status:
+          type: string
+          enum: [pending, confirmed, failed]
+          description: Transaction status
+          example: "confirmed"
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: "INVALID_PHONE_NUMBER"
+        message:
+          type: string
+          description: Error message
+          example: "Invalid phone number format"
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true
+
+  examples:
+    BasicConnectButton:
+      summary: Basic Connect Button
+      value: |
+        <ConnectButton
+          onConnect={(response) => {
+            console.log('Connected:', response.address);
+          }}
+          onError={(error) => {
+            console.error('Connection failed:', error.message);
+          }}
+        />
+
+    CustomThemedButton:
+      summary: Custom Themed Connect Button
+      value: |
+        const customTheme = {
+          colors: {
+            primary: '#007bff',
+            background: '#ffffff',
+            foreground: '#000000'
+          },
+          borderRadius: '12px',
+          fontFamily: 'Inter, sans-serif'
+        };
+
+        <ConnectButton
+          theme={customTheme}
+          variant="outline"
+          size="lg"
+          onConnect={(response) => {
+            console.log('Connected:', response);
+          }}
+        />
+
+    GaslessTransaction:
+      summary: Gasless Transaction Button
+      value: |
+        <TransactionButton
+          to="0x742d35Cc6634C0532925a3b8D16A2f5C3e2f1234"
+          amount="0.1"
+          gasless={true}
+          onSuccess={(tx) => {
+            console.log('Transaction successful:', tx.hash);
+          }}
+          onError={(error) => {
+            console.error('Transaction failed:', error.message);
+          }}
+        >
+          Send 0.1 ETH
+        </TransactionButton>
+
+    FullAppSetup:
+      summary: Complete App Setup
+      value: |
+        import { 
+          CryptoMomoProvider, 
+          ConnectButton, 
+          TransactionButton 
+        } from 'cryptomomo-developer-sdk';
+
+        const customTheme = {
+          colors: {
+            primary: '#007bff',
+            background: '#ffffff'
+          }
+        };
+
+        function App() {
+          return (
+            <CryptoMomoProvider 
+              apiKey="your-api-key"
+              theme={customTheme}
+            >
+              <div className="app">
+                <ConnectButton />
+                <TransactionButton
+                  to="0x742d35Cc6634C0532925a3b8D16A2f5C3e2f1234"
+                  amount="0.1"
+                  gasless={true}
+                />
+              </div>
+            </CryptoMomoProvider>
+          );
+        }
+
+externalDocs:
+  description: Complete SDK Documentation
+  url: https://github.com/narteysarso/cryptomomo-developer-sdk/tree/main/docs 
