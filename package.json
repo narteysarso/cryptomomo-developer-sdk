@@ -1,6 +1,6 @@
 {
   "name": "cryptomomo-developer-sdk",
-  "version": "2.2.7",
+  "version": "3.0.0",
   "description": "CryptoMomo Developer SDK - Build web3 applications with Account Abstraction and gasless transactions",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
