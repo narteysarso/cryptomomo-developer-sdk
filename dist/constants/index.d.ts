@@ -4,7 +4,7 @@
  */
 export declare const API_CONFIG: {
     readonly BASE_URL: "http://localhost:3000/api/v1";
-    readonly PRODUCTION_URL: "https://api.cryptomomo.com/api/v1";
+    readonly PRODUCTION_URL: "https://api.cryptomomo.africa/api/v1";
     readonly TIMEOUT: 30000;
     readonly RETRY_ATTEMPTS: 3;
     readonly RETRY_DELAY: 1000;
@@ -12,6 +12,7 @@ export declare const API_CONFIG: {
 export declare const ENDPOINTS: {
     readonly CONNECTIONS: {
         readonly REQUEST: "/connections/request";
+        readonly REGISTER: "/connections/register";
         readonly VERIFY: "/connections/verify";
         readonly REFRESH: "/connections/refresh";
         readonly GET_BY_ID: "/connections/:connectionId";
@@ -43,13 +44,16 @@ export declare const ERROR_MESSAGES: {
     readonly IP_NOT_WHITELISTED: "Your IP address is not whitelisted for this app.";
     readonly PLATFORM_MANAGER_NOT_FOUND: "Platform manager not found.";
     readonly RATE_LIMITED: "Too many requests. Please wait and try again.";
+    readonly USER_NOT_FOUND: "Wallet account not found. Please register.";
+    readonly REGISTRATION_REQUIRED: "Please complete registration to continue.";
 };
 export declare const SUCCESS_MESSAGES: {
-    readonly OTP_SENT: "OTP sent to your phone number.";
+    readonly OTP_GENERATED: "Connection code generated. Please confirm via USSD.";
     readonly CONNECTION_VERIFIED: "Connected successfully!";
     readonly TRANSACTION_SENT: "Transaction sent successfully!";
     readonly TRANSACTION_CONFIRMED: "Transaction confirmed!";
     readonly GASLESS_TRANSACTION_SENT: "Gasless transaction sent successfully!";
+    readonly ACCOUNT_REGISTERED: "Account created successfully! Please claim your account via USSD.";
 };
 export declare const STORAGE_KEYS: {
     readonly CONNECTION_ID: "cryptomomo_connection_id";

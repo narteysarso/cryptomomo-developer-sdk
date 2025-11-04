@@ -27,12 +27,23 @@ export declare class CryptoMomoClient {
      */
     private handleErrorResponse;
     /**
-     * Request a new connection (sends OTP to user's phone)
+     * Request a new connection (checks wallet existence and sends OTP)
      * @param phoneNumber - User's phone number in E.164 format (e.g., +233123456789)
      * @param metadata - Optional metadata to store with the connection
-     * @returns Connection info with connectionId for OTP verification
+     * @returns Connection info with connectionId and OTP for USSD confirmation
+     * @throws CryptoMomoError with code 'USER_NOT_FOUND' if wallet doesn't exist
      */
     requestConnection(phoneNumber: string, metadata?: Record<string, any>): Promise<ConnectionInfo>;
+    /**
+     * Register a new wallet account
+     * @param firstName - User's first name
+     * @param lastName - User's last name
+     * @param phoneNumber - User's phone number in E.164 format (e.g., +233123456789)
+     * @returns Success message
+     */
+    registerAccount(firstName: string, lastName: string, phoneNumber: string): Promise<{
+        message: string;
+    }>;
     /**
      * Verify OTP and complete connection
      * Automatically switches to session token authentication after successful verification
