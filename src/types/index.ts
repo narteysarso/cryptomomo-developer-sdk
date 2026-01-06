@@ -89,6 +89,8 @@ export const ConnectionSchema = z.object({
   updatedAt: z.string().datetime(),
   sessionToken: z.string().optional(), // JWT token for browser-based authentication (30 min)
   refreshToken: z.string().optional(), // JWT token for refreshing sessions (7 days)
+  otp: z.string().optional(), // OTP code returned from connection request (NOT sent via SMS, displayed to user)
+  otpExpiresAt: z.string().datetime().optional(), // When the OTP code expires
 });
 
 export type ConnectionInfo = z.infer<typeof ConnectionSchema>;

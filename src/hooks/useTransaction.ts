@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { CryptoMomoClient } from '../core/client';
 import { useConfig, useCurrentConnection } from '../core/store';
@@ -13,6 +13,8 @@ import {
   AuthenticationError,
 } from '../types';
 import { ERROR_MESSAGES } from '../constants';
+import { wsService } from '../core/websocket';
+import { WebSocketEvent, TransactionEventPayload } from '../types/websocket.types';
 
 /**
  * Hook for sending transactions
@@ -115,12 +117,14 @@ export function useTransaction(options?: UseTransactionOptions) {
 }
 
 /**
- * Hook for getting transaction status (auto-polls until completed/failed)
+ * Hook for getting transaction status (uses WebSocket for real-time updates)
  */
 export function useTransactionStatus(transactionId?: string) {
   const config = useConfig();
+  const [liveStatus, setLiveStatus] = useState<TransactionResponse | null>(null);
 
-  return useQuery({
+  // Initial fetch
+  const query = useQuery({
     queryKey: ['transaction-status', transactionId],
     queryFn: async () => {
       if (!config) {
@@ -133,16 +137,57 @@ export function useTransactionStatus(transactionId?: string) {
       return await client.getTransactionStatus(transactionId);
     },
     enabled: !!config && !!transactionId,
-    refetchInterval: (query) => {
-      // Stop refetching if transaction is completed, failed, or expired
-      const data = query.state.data;
-      if (data?.status === 'completed' || data?.status === 'failed' || data?.status === 'expired') {
-        return false;
-      }
-      // Poll every 3 seconds for active transactions
-      return 3000;
-    },
+    // Only fetch once, WebSocket will handle updates
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
+    staleTime: Infinity,
   });
+
+  // Listen for WebSocket events
+  useEffect(() => {
+    if (!transactionId) return;
+
+    // Join transaction room for targeted updates
+    wsService.joinTransactionRoom(transactionId);
+
+    // Handle real-time transaction status updates
+    const handleTransactionUpdate = (payload: TransactionEventPayload) => {
+      if (payload.transactionId === transactionId) {
+        // Update with new status data
+        setLiveStatus((prev) => ({
+          ...prev,
+          ...(prev as any),
+          status: payload.status,
+          updatedAt: payload.timestamp,
+          // Add transaction-specific fields from payload if available
+          ...(payload as any),
+        }));
+      }
+    };
+
+    // Subscribe to all transaction events
+    const unsubConfirmed = wsService.on(WebSocketEvent.TRANSACTION_CONFIRMED, handleTransactionUpdate);
+    const unsubExecuting = wsService.on(WebSocketEvent.TRANSACTION_EXECUTING, handleTransactionUpdate);
+    const unsubCompleted = wsService.on(WebSocketEvent.TRANSACTION_COMPLETED, handleTransactionUpdate);
+    const unsubFailed = wsService.on(WebSocketEvent.TRANSACTION_FAILED, handleTransactionUpdate);
+    const unsubExpired = wsService.on(WebSocketEvent.TRANSACTION_EXPIRED, handleTransactionUpdate);
+
+    // Cleanup
+    return () => {
+      wsService.leaveTransactionRoom(transactionId);
+      unsubConfirmed();
+      unsubExecuting();
+      unsubCompleted();
+      unsubFailed();
+      unsubExpired();
+    };
+  }, [transactionId]);
+
+  // Return live status if available, otherwise fall back to query data
+  return {
+    ...query,
+    data: liveStatus || query.data,
+  };
 }
 
 /**

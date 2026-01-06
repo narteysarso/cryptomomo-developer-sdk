@@ -24,6 +24,8 @@ export declare const useCurrentConnection: () => {
     metadata?: Record<string, any> | undefined;
     sessionToken?: string | undefined;
     refreshToken?: string | undefined;
+    otp?: string | undefined;
+    otpExpiresAt?: string | undefined;
 } | null;
 export declare const usePhoneNumber: () => string | null;
 export declare const useSetConfig: () => (config: CryptoMomoConfig) => void;

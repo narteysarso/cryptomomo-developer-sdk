@@ -16,6 +16,8 @@ export declare function useConnect(options?: UseConnectOptions): {
         metadata?: Record<string, any> | undefined;
         sessionToken?: string | undefined;
         refreshToken?: string | undefined;
+        otp?: string | undefined;
+        otpExpiresAt?: string | undefined;
     }>;
     register: (firstName: string, lastName: string, phoneNum: string) => Promise<{
         message: string;
@@ -32,6 +34,8 @@ export declare function useConnect(options?: UseConnectOptions): {
         metadata?: Record<string, any> | undefined;
         sessionToken?: string | undefined;
         refreshToken?: string | undefined;
+        otp?: string | undefined;
+        otpExpiresAt?: string | undefined;
     }>;
     reset: () => void;
     isConnecting: boolean;

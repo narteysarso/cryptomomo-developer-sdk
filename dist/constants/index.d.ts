@@ -4,7 +4,7 @@
  */
 export declare const API_CONFIG: {
     readonly BASE_URL: "http://localhost:3000/api/v1";
-    readonly PRODUCTION_URL: "https://api.cryptomomo.africa/api/v1";
+    readonly PRODUCTION_URL: "https://api.cryptomomo.com/api/v1";
     readonly TIMEOUT: 30000;
     readonly RETRY_ATTEMPTS: 3;
     readonly RETRY_DELAY: 1000;

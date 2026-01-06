@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Wallet, Phone, KeyRound, Loader2 } from 'lucide-react';
+import { Wallet, Phone, KeyRound, Loader2, XCircle, CheckCircle } from 'lucide-react';
 import { useConnect } from '../hooks/useConnect';
 import { useIsConnected, useDisconnect } from '../core/store';
 import { ConnectButtonProps, CryptoMomoTheme } from '../types';
@@ -21,9 +21,9 @@ import { ERROR_MESSAGES, SUCCESS_MESSAGES, VALIDATION, DEFAULTS } from '../const
 // Theme utility to generate CSS variables
 const generateThemeVariables = (theme?: CryptoMomoTheme): React.CSSProperties => {
   if (!theme) return {};
-  
+
   const variables: Record<string, string> = {};
-  
+
   if (theme.colors) {
     Object.entries(theme.colors).forEach(([key, value]) => {
       if (value) {
@@ -31,16 +31,47 @@ const generateThemeVariables = (theme?: CryptoMomoTheme): React.CSSProperties =>
       }
     });
   }
-  
+
   if (theme.borderRadius) {
     variables['--radius'] = theme.borderRadius;
   }
-  
+
   if (theme.fontFamily) {
     variables['--font-family'] = theme.fontFamily;
   }
-  
+
   return variables as React.CSSProperties;
+};
+
+// Get user-friendly error message based on error type
+const getErrorMessage = (error: any): string => {
+  const message = error?.message || '';
+
+  // Check for specific error codes/patterns from API
+  if (message.includes('USER_NOT_FOUND') || message.includes('not found')) {
+    return 'Wallet account not found. Please register to continue.';
+  } else if (message.includes('INVALID_OTP') || message.includes('Invalid OTP')) {
+    return 'Invalid or expired confirmation code. Please check and try again.';
+  } else if (message.includes('already approved')) {
+    return 'This connection is already active.';
+  } else if (message.includes('already revoked')) {
+    return 'This connection has been revoked.';
+  } else if (message.includes('VALIDATION_ERROR')) {
+    return 'Invalid input. Please check your details and try again.';
+  } else if (message.includes('INVALID_PHONE')) {
+    return 'Please enter a valid phone number with country code (e.g., +233...).';
+  } else if (message.includes('PHONE_MISMATCH')) {
+    return 'Phone number does not match the connection.';
+  } else if (message.includes('OTP_NOT_FOUND') || message.includes('expired')) {
+    return 'Code has expired. Please request a new connection.';
+  } else if (message.includes('RATE_LIMITED')) {
+    return 'Too many requests. Please wait a moment and try again.';
+  } else if (message.includes('IP_NOT_WHITELISTED')) {
+    return 'Your IP address is not authorized. Please contact support.';
+  }
+
+  // Return original message if no specific match
+  return message || 'An unexpected error occurred. Please try again.';
 };
 
 const ConnectForm: React.FC<{
@@ -54,6 +85,8 @@ const ConnectForm: React.FC<{
   const [lastName, setLastName] = useState('');
   const [showCodeDisplay, setShowCodeDisplay] = useState(false);
   const [displayedCode, setDisplayedCode] = useState('');
+  const [otp, setOtp] = useState('');
+  const [showOTPInput, setShowOTPInput] = useState(false);
 
   const {
     connect,
@@ -70,15 +103,19 @@ const ConnectForm: React.FC<{
     verifyError,
   } = useConnect({
     onSuccess: (response) => {
-      // If OTP is returned, display it to user
+      // If OTP is returned, display it to user (connection request response)
       if (response.otp) {
         setDisplayedCode(response.otp);
         setShowCodeDisplay(true);
-      } else {
+        setShowOTPInput(false); // Hide OTP input initially
+      } else if (response.status === 'approved' && response.sessionToken) {
+        // Connection verified successfully, user is now connected
         onConnect?.(response);
         setShowCodeDisplay(false);
+        setShowOTPInput(false);
         setPhoneNumber('');
         setDisplayedCode('');
+        setOtp('');
       }
     },
     onError: (error) => {
@@ -146,14 +183,92 @@ const ConnectForm: React.FC<{
   const handleReset = () => {
     reset();
     setShowCodeDisplay(false);
+    setShowOTPInput(false);
     setPhoneNumber('');
     setDisplayedCode('');
+    setOtp('');
     setFirstName('');
     setLastName('');
     onCancel?.();
   };
 
   const themeStyles = generateThemeVariables(theme);
+
+  // Show OTP verification input (after user confirms via USSD)
+  if (showOTPInput) {
+    return (
+      <div className="space-y-4" style={themeStyles}>
+        <div className="text-center space-y-2">
+          <div className="text-lg font-semibold">
+            Verify Connection
+          </div>
+          <DialogDescription>
+            Enter the connection code to complete verification
+          </DialogDescription>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="otpInput">Confirmation Code</Label>
+          <div className="relative">
+            <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              id="otpInput"
+              type="text"
+              placeholder="Enter 6-digit code"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.toUpperCase())}
+              className="pl-10 text-center text-2xl tracking-widest font-mono"
+              maxLength={6}
+              disabled={isVerifying}
+              autoFocus
+            />
+          </div>
+          <div className="text-xs text-muted-foreground text-center">
+            Enter the code: {displayedCode}
+          </div>
+        </div>
+
+        <div className="flex space-x-2">
+          <Button
+            onClick={() => setShowOTPInput(false)}
+            variant="outline"
+            className="flex-1"
+            disabled={isVerifying}
+          >
+            Back
+          </Button>
+          <Button
+            onClick={handleVerifyOTP}
+            disabled={isVerifying || otp.length !== 6}
+            className="flex-1"
+          >
+            {isVerifying ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Verifying...
+              </>
+            ) : (
+              <>
+                <KeyRound className="mr-2 h-4 w-4" />
+                Verify
+              </>
+            )}
+          </Button>
+        </div>
+
+        {verifyError && (
+          <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3">
+            <div className="flex items-start gap-2">
+              <XCircle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-destructive">
+                {getErrorMessage(verifyError)}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   // Show connection code display (user confirms via USSD)
   if (showCodeDisplay && displayedCode) {
@@ -174,8 +289,11 @@ const ConnectForm: React.FC<{
             </div>
           </div>
 
-          <div className="text-sm text-muted-foreground">
-            Dial the USSD code and enter this number to complete your connection
+          <div className="text-sm text-muted-foreground space-y-2">
+            <p>1. Dial your USSD code (e.g., *123#)</p>
+            <p>2. Select "Approve Connection"</p>
+            <p>3. Enter the code above</p>
+            <p>4. Return here and click "I've Confirmed"</p>
           </div>
         </div>
 
@@ -183,11 +301,22 @@ const ConnectForm: React.FC<{
           <Button onClick={handleReset} variant="outline" className="flex-1">
             Cancel
           </Button>
+          <Button
+            onClick={() => setShowOTPInput(true)}
+            className="flex-1"
+          >
+            I've Confirmed
+          </Button>
         </div>
 
         {connectError && (
-          <div className="text-sm text-destructive">
-            {connectError.message}
+          <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3">
+            <div className="flex items-start gap-2">
+              <XCircle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-destructive">
+                {getErrorMessage(connectError)}
+              </p>
+            </div>
           </div>
         )}
       </div>
@@ -291,8 +420,13 @@ const ConnectForm: React.FC<{
         </div>
 
         {registerError && (
-          <div className="text-sm text-destructive">
-            {registerError.message}
+          <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3">
+            <div className="flex items-start gap-2">
+              <XCircle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-destructive">
+                {getErrorMessage(registerError)}
+              </p>
+            </div>
           </div>
         )}
       </div>
@@ -345,8 +479,13 @@ const ConnectForm: React.FC<{
       </div>
 
       {connectError && (
-        <div className="text-sm text-destructive">
-          {connectError.message}
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3">
+          <div className="flex items-start gap-2">
+            <XCircle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-destructive">
+              {getErrorMessage(connectError)}
+            </p>
+          </div>
         </div>
       )}
     </div>

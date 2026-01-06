@@ -113,6 +113,8 @@ export declare const ConnectionSchema: z.ZodObject<{
     updatedAt: z.ZodString;
     sessionToken: z.ZodOptional<z.ZodString>;
     refreshToken: z.ZodOptional<z.ZodString>;
+    otp: z.ZodOptional<z.ZodString>;
+    otpExpiresAt: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     id: string;
     createdAt: string;
@@ -125,6 +127,8 @@ export declare const ConnectionSchema: z.ZodObject<{
     metadata?: Record<string, any> | undefined;
     sessionToken?: string | undefined;
     refreshToken?: string | undefined;
+    otp?: string | undefined;
+    otpExpiresAt?: string | undefined;
 }, {
     id: string;
     createdAt: string;
@@ -137,6 +141,8 @@ export declare const ConnectionSchema: z.ZodObject<{
     metadata?: Record<string, any> | undefined;
     sessionToken?: string | undefined;
     refreshToken?: string | undefined;
+    otp?: string | undefined;
+    otpExpiresAt?: string | undefined;
 }>;
 export type ConnectionInfo = z.infer<typeof ConnectionSchema>;
 export interface ConnectionRequestInput {
@@ -406,6 +412,8 @@ export declare const schemas: {
         updatedAt: z.ZodString;
         sessionToken: z.ZodOptional<z.ZodString>;
         refreshToken: z.ZodOptional<z.ZodString>;
+        otp: z.ZodOptional<z.ZodString>;
+        otpExpiresAt: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
         id: string;
         createdAt: string;
@@ -418,6 +426,8 @@ export declare const schemas: {
         metadata?: Record<string, any> | undefined;
         sessionToken?: string | undefined;
         refreshToken?: string | undefined;
+        otp?: string | undefined;
+        otpExpiresAt?: string | undefined;
     }, {
         id: string;
         createdAt: string;
@@ -430,6 +440,8 @@ export declare const schemas: {
         metadata?: Record<string, any> | undefined;
         sessionToken?: string | undefined;
         refreshToken?: string | undefined;
+        otp?: string | undefined;
+        otpExpiresAt?: string | undefined;
     }>;
 };
 //# sourceMappingURL=index.d.ts.map

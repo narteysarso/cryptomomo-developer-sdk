@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { CryptoMomoStore, CryptoMomoConfig, ConnectionInfo } from '../types';
 import { STORAGE_KEYS } from '../constants';
+import { wsService } from './websocket';
 
 export const useCryptoMomoStore = create<CryptoMomoStore>()(
   persist(
@@ -23,9 +24,20 @@ export const useCryptoMomoStore = create<CryptoMomoStore>()(
           phoneNumber: connection.phoneNumber,
           isConnected: connection.status === 'approved',
         });
+
+        // Initialize WebSocket connection when session token is available
+        if (connection.sessionToken && connection.status === 'approved') {
+          const config = get().config;
+          if (config?.baseUrl) {
+            wsService.connect(config.baseUrl, connection.sessionToken);
+          }
+        }
       },
 
       clearConnection: () => {
+        // Disconnect WebSocket
+        wsService.disconnect();
+
         set({
           currentConnection: null,
           phoneNumber: null,
@@ -34,6 +46,9 @@ export const useCryptoMomoStore = create<CryptoMomoStore>()(
       },
 
       reset: () => {
+        // Disconnect WebSocket
+        wsService.disconnect();
+
         set({
           config: null,
           currentConnection: null,
